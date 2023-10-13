@@ -1,0 +1,47 @@
+import pandas as pd
+
+# Load the dataset
+data = pd.read_csv('your_dataset.csv')
+
+# How many people of each race are represented in this dataset?
+race_count = data['race'].value_counts()
+
+# What is the average age of men?
+average_age_men = data[data['sex'] == 'Male']['age'].mean()
+
+# What is the percentage of people who have a Bachelor's degree?
+percentage_bachelors = (data['education'] == 'Bachelors').sum() / data.shape[0] * 100
+
+# What percentage of people with advanced education make more than 50K?
+advanced_education = data['education'].isin(['Bachelors', 'Masters', 'Doctorate'])
+higher_education_rich = (data[advanced_education]['salary'] == '>50K').sum() / data[advanced_education].shape[0] * 100
+
+# What percentage of people without advanced education make more than 50K?
+lower_education_rich = (data[~advanced_education]['salary'] == '>50K').sum() / data[~advanced_education].shape[0] * 100
+
+# What is the minimum number of hours a person works per week?
+min_work_hours = data['hours-per-week'].min()
+
+# What percentage of the people who work the minimum number of hours per week have a salary of more than 50K?
+num_min_workers = data[data['hours-per-week'] == min_work_hours]
+rich_percentage = (num_min_workers['salary'] == '>50K').sum() / num_min_workers.shape[0] * 100
+
+# What country has the highest percentage of people that earn >50K and what is that percentage?
+highest_earning_country = (data[data['salary'] == '>50K']['native-country'].value_counts() / data['native-country'].value_counts()).idxmax()
+highest_earning_country_percentage = (data[(data['native-country'] == highest_earning_country) & (data['salary'] == '>50K')].shape[0] / data[data['native-country'] == highest_earning_country].shape[0]) * 100
+
+# Identify the most popular occupation for those who earn >50K in India.
+top_IN_occupation = data[(data['native-country'] == 'India') & (data['salary'] == '>50K')]['occupation'].value_counts().idxmax()
+
+# Print the results
+print("Race count:")
+print(race_count)
+print("\nAverage age of men:", round(average_age_men, 1))
+print("\nPercentage with Bachelors:", round(percentage_bachelors, 1))
+print("\nPercentage with higher education that earn >50K:", round(higher_education_rich, 1))
+print("\nPercentage without higher education that earn >50K:", round(lower_education_rich, 1))
+print("\nMin work hours:", min_work_hours)
+print("\nPercentage of rich among those who work fewest hours:", round(rich_percentage, 1))
+print("\nCountry with highest percentage of rich:", highest_earning_country)
+print("\nPercentage of rich in", highest_earning_country, ":", round(highest_earning_country_percentage, 1))
+print("\nTop occupation in India:", top_IN_occupation)
