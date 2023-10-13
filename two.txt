@@ -1,0 +1,59 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+def add_overweight_column(data):
+    # Calculate BMI and add overweight column
+    data['BMI'] = data['weight'] / (data['height'] / 100) ** 2
+    data['overweight'] = (data['BMI'] > 25).astype(int)
+
+def normalize_data(data):
+    # Normalize cholesterol and glucose data
+    data['cholesterol'] = (data['cholesterol'] > 1).astype(int)
+    data['gluc'] = (data['gluc'] > 1).astype(int)
+
+def create_catplot(data):
+    # Convert data into long format for catplot
+    cat_data = pd.melt(data, id_vars=['cardio'], value_vars=['cholesterol', 'gluc', 'alco', 'active', 'smoke'])
+
+    # Create catplot
+    cat_plot = sns.catplot(x='variable', hue='value', col='cardio', data=cat_data, kind='count')
+    cat_plot.set_axis_labels('variable', 'total')
+    cat_plot.set_titles('{col_name} {col_var}')
+
+def clean_data(data):
+    # Filter out incorrect data
+    data = data[(data['ap_lo'] <= data['ap_hi']) &
+                (data['height'] >= data['height'].quantile(0.025)) &
+                (data['height'] <= data['height'].quantile(0.975)) &
+                (data['weight'] >= data['weight'].quantile(0.025)) &
+                (data['weight'] <= data['weight'].quantile(0.975))]
+    return data
+
+def plot_correlation_matrix(data):
+    # Create correlation matrix
+    corr_matrix = data.corr()
+
+    # Plot heatmap
+    sns.heatmap(corr_matrix, annot=True, fmt=".1f", cmap='coolwarm', mask=np.triu(corr_matrix))
+
+# Load the dataset
+data = pd.read_csv('medical_examination.csv')
+
+# Task 1: Add overweight column
+add_overweight_column(data)
+
+# Task 2: Normalize data
+normalize_data(data)
+
+# Task 3: Create catplot
+create_catplot(data)
+
+# Task 4: Clean data
+data = clean_data(data)
+
+# Task 5: Plot correlation matrix
+plot_correlation_matrix(data)
+
+# Show the plots
+plt.show()
